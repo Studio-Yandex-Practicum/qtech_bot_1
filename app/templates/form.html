@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br>
+<div class="container">
+  <form class="form-horizontal card col-8" method="POST" enctype="multipart/form-data">
+    <div class="card-header">
+    <h3>Создание информационной кнопки</h3>
+    </div>
+
+    <div class="form-group ">
+      <label for="name">Название кнопки:</label>
+      <input type="text" class="form-control col-sm-12 invalidInput" name="name" id="name" placeholder="HR" required />
+    </div>
+
+    <div class="form-group">
+    <label for="is_moscow">Локация (москва/немосква)</label>
+    <select class="form-control" name="is_moscow" id="is_moscow">
+      <option>true</option>
+      <option>false</option>
+    </select>
+  </div>
+
+        <div class="form-group">
+    <label for="is_department">Кнопка контактов</label>
+    <select class="form-control" name="is_department" id="is_department">
+      <option>true</option>
+      <option>false</option>
+    </select>
+    </div>
+
+
+    <div class="form-group">
+      <label for="text">Информационное сообщение:</label>
+      <textarea class="form-control" name="text" id="text" rows="10" required></textarea>
+    </div>
+
+
+
+    <div class="form-group">
+    <label for="is_active">Активировать кнопку</label>
+    <select class="form-control" name="is_active" id="is_active">
+      <option>true</option>
+      <option>false</option>
+    </select>
+    </div>
+
+
+
+    <div class="form-group">
+      <label for="file_pic">Выберите картинку для загрузки</label>
+      <input type="file" id="file_pic" name="file_pic"/>
+    </div>
+
+    <div class="form-group">
+      <label for="file_doc">Выберите файл для загрузки</label>
+      <input type="file" id="file_doc" name="file_doc"/>
+    </div>
+
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-default">Сохранить</button>
+    </div>
+  </form>
+</div>
+
+
+{% endblock %}

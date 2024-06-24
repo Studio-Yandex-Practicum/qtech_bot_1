@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h3>Список кнопок</h3>
+<table border="1">
+    <tr>
+        <th>Активирована</th>
+        <th>Название кнопки</th>
+        <th>Кнопка департамента</th>
+        <th>Удалить</th>
+        <th>Редактировать</th>
+    </tr>
+  </thead>
+    {% for item in context %}
+        <tbody>
+        <tr>
+            <td>{{ item.is_active }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.is_department }}</td>
+
+            <td>>>></td>
+            <td>>>></td>
+        </tr>
+        </tbody>
+    {% endfor %}
+</table>
+</div>
+{% endblock %}
