@@ -7,6 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.button import ButtonBase
 from app.core.db import get_async_session
 from app.crud.button import button_crud
+from app.validators.validators import (
+    check_buttons_name_duplicate, check_button_exists
+)
 import os
 from pathlib import Path
 
@@ -41,7 +44,7 @@ async def create_button(
             picture.append('static/media/pics/' + filename)
 
     picture = ' '.join(picture)
-
+    print(f'{picture=}')
     item = []
     Path(current_working_directory + '/app/static/media/docs/').mkdir(parents=True, exist_ok=True)
     for doc in file_doc:
@@ -52,8 +55,7 @@ async def create_button(
             item.append('static/media/docs/' + filename)
 
     file = ' '.join(item)
-
-
+    print(f'{file=}')
     new_button = await button_crud.create_with_pic(name=name,
                                                    is_moscow=is_moscow,
                                                    text=text,
@@ -76,6 +78,7 @@ async def get_all_buttons(
     return all_buttons
 
 
+"""
 @router.get(
     '/api/{button_id}',
     response_model=list[ButtonBase]
@@ -86,3 +89,45 @@ async def get_button_detail_by_id(
 ):
     button_detail = await button_crud.get(button_id, session)
     return button_detail
+"""
+
+
+# test ok
+@router.get(
+    '/api/{button_id}',
+    response_model=ButtonBase,
+    response_model_exclude_none=True,
+)
+async def get_button_detail_by_id(
+        button_id: int,
+        session: AsyncSession = Depends(get_async_session),
+):
+    button_detail = await button_crud.get(button_id, session)
+    return button_detail
+
+
+# test ok
+@router.delete(
+    '/api/{button_id}',
+    response_model=ButtonBase,
+    response_model_exclude_none=True,
+    # dependencies=[Depends(current_superuser)]
+)
+async def delete_button(
+    button_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """
+    - Удалить кнопку.
+    - **доступность:** Суперюзер.
+    """
+    button = await check_button_exists(
+       button_id, session
+    )
+    for file in button.picture, button.file:
+        if Path.exists(Path(file)):
+            Path.unlink(file)
+
+    return await button_crud.remove(
+        button, session
+    )

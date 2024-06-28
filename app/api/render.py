@@ -7,7 +7,7 @@ from starlette.responses import RedirectResponse
 
 from app.core.db import get_async_session
 from app.api.button import (create_button, get_all_buttons,
-                            get_button_detail_by_id)
+                            get_button_detail_by_id, delete_button)
 
 router = APIRouter(tags=['Render Bottons'])
 
@@ -74,3 +74,5 @@ async def get_button_detail(request: Request,
                                        "context": context,
                                        }
                                       )
+
+# delete button: В работе

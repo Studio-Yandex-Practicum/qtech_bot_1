@@ -15,5 +15,3 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(button)
 app.include_router(render)
-
-

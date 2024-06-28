@@ -1,4 +1,6 @@
+import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.encoders import jsonable_encoder
 
 from app.crud.base import CRUDBase
 from app.models.button import Button
@@ -29,6 +31,26 @@ class CRUDButton(CRUDBase):
         await session.commit()
         await session.refresh(db_obj)
         return db_obj
+
+    async def get_buttons_id_by_name(
+        self,
+        button_name: str,
+        session: AsyncSession,
+    ) -> Button:
+        return (await session.execute(
+            select(self.model.id).where(
+                self.model.name == button_name
+            )
+        )).scalars().first()
+
+    async def remove(
+        self,
+        db_button,
+        session: AsyncSession,
+    ):
+        await session.delete(db_button)
+        await session.commit()
+        return db_button
 
 
 button_crud = CRUDButton(Button)

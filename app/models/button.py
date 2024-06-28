@@ -13,4 +13,6 @@ class Button(Base):
     is_department = Column(Boolean,  default=True)
 
     is_active = Column(Boolean, default=True)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    # created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    # test only
+    created_date = Column(DateTime, default=datetime.datetime.now)
