@@ -1,3 +1,4 @@
+import sys
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from const import NEW_EMPLOYEE, OLD_EMPLOYEE, MOSCOW_NO, MOSCOW_YES
@@ -15,16 +16,16 @@ def start_handler(update, context):
             callback_data=OLD_EMPLOYEE)]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(
-        'Для начала, расскажите, вы новый сотрудник или уже давно с нами?',
-        reply_markup=reply_markup)
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text='Для начала, расскажите, вы новый сотрудник или уже давно с нами?',
+                             reply_markup=reply_markup)
 
 
 def moscow_office_handler(update, context):
     """Обработчик кнопок про Москву"""
     query = update.callback_query
     query.answer()
-
+    text = 'Посещаете ли вы офис в Москве?'
     if query.data == NEW_EMPLOYEE:
         text = ('Добро пожаловать в ГК QTECH!! Этот чат-бот поможет '
                 'сориентироваться в первые дни работы '
@@ -38,11 +39,13 @@ def moscow_office_handler(update, context):
                 'предложения по улучшению. '
                 'Посещаете ли вы офис в Москве?')
 
+    context.user_data['previous_handler'] = moscow_office_handler.__name__
     keyboard = [
         [
             InlineKeyboardButton('Да', callback_data=MOSCOW_YES),
             InlineKeyboardButton('Нет', callback_data=MOSCOW_NO),
-        ]
+        ],
+        [InlineKeyboardButton('В начало', callback_data='to_start')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text=text, reply_markup=reply_markup)
@@ -53,6 +56,11 @@ def info_buttons_handler(update, context):
     query = update.callback_query
     query.answer()
 
+    if query.data == 'to_previous':
+        previous_handler = getattr(sys.modules[__name__], context.user_data.get("previous_handler"))
+        return previous_handler(update, context)
+
+    context.user_data["previous_handler2"] = info_buttons_handler.__name__
     if query.data == MOSCOW_YES:
         buttons = session.query(Button).filter_by(is_moscow=True,
                                                   is_department=False).all()
@@ -63,9 +71,13 @@ def info_buttons_handler(update, context):
     keyboard = [
         [InlineKeyboardButton(button.name, callback_data=f'button_{button.id}')]
         for button in buttons
-    ]
+        ]
     keyboard.append([InlineKeyboardButton('К кому обращаться?',
                                           callback_data=f'department_button_{query.data}')])
+    keyboard.append([
+        InlineKeyboardButton('Назад', callback_data='to_previous'),
+        InlineKeyboardButton('В начало', callback_data='to_start')
+        ])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
@@ -93,6 +105,10 @@ def department_button_handler(update, context):
     query.answer()
 
     office_choice = query.data.split('_')[3]
+    
+    if query.data == 'to_previous2':
+        previous_handler2 = getattr(sys.modules[__name__], context.user_data.get("previous_handler2"))
+        return previous_handler2(update, context)
 
     if office_choice == 'yes':
         buttons = session.query(Button).filter_by(is_moscow=True,
@@ -103,8 +119,12 @@ def department_button_handler(update, context):
 
     keyboard = [
         [InlineKeyboardButton(button.name, callback_data=f'button_{button.id}')]
-        for button in buttons]
-
+        for button in buttons
+    ]
+    keyboard.append([
+        InlineKeyboardButton('Назад', callback_data='to_previous2'),
+        InlineKeyboardButton('В начало', callback_data='to_start')
+        ])
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
         text='Выберите отдел',

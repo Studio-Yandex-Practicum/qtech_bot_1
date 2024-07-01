@@ -30,6 +30,12 @@ def main():
     dispatcher.add_handler(CallbackQueryHandler(
         department_button_handler,
         pattern='^department_button_(moscow_yes|moscow_no)$'))
+    dispatcher.add_handler(CallbackQueryHandler(start_handler,
+                                                pattern='to_start'))
+    dispatcher.add_handler(CallbackQueryHandler(moscow_office_handler,
+                                                pattern='to_previous'))
+    dispatcher.add_handler(CallbackQueryHandler(info_buttons_handler,
+                                                pattern='to_previous2'))
 
     updater.start_polling()
     updater.idle()

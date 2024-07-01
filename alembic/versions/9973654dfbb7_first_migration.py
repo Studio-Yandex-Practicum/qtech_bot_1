@@ -1,17 +1,17 @@
-"""Button model -revision structure
+"""First migration
 
-Revision ID: 5dc1a257b80d
+Revision ID: 9973654dfbb7
 Revises: 
-Create Date: 2024-06-24 22:52:15.518141
+Create Date: 2024-06-28 20:04:34.110009
 
 """
-import sqlalchemy_utils
 from alembic import op
 import sqlalchemy as sa
+import sqlalchemy_utils
 
 
 # revision identifiers, used by Alembic.
-revision = '5dc1a257b80d'
+revision = '9973654dfbb7'
 down_revision = None
 branch_labels = None
 depends_on = None
