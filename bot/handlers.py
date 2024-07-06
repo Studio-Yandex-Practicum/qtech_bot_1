@@ -1,4 +1,3 @@
-import sys
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from const import NEW_EMPLOYEE, OLD_EMPLOYEE, MOSCOW_NO, MOSCOW_YES
@@ -7,6 +6,10 @@ from db import session, Button
 
 def start_handler(update, context):
     """Обработчик команды /start"""
+    query = update.callback_query
+    if query:
+        query.answer()
+
     keyboard = [
         [InlineKeyboardButton(
             'Я новый сотрудник',
@@ -15,16 +18,22 @@ def start_handler(update, context):
             'Я работаю здесь уже долгое время',
             callback_data=OLD_EMPLOYEE)]
     ]
+
+    text = 'Для начала, расскажите, вы новый сотрудник или уже давно с нами?'
+    message = update.effective_message
     reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text='Для начала, расскажите, вы новый сотрудник или уже давно с нами?',
-                             reply_markup=reply_markup)
+    if query:
+        message.edit_text(text=text, reply_markup=reply_markup)
+    else:
+        message.reply_text(text=text, reply_markup=reply_markup)
 
 
 def moscow_office_handler(update, context):
     """Обработчик кнопок про Москву"""
     query = update.callback_query
     query.answer()
+    context.user_data['previous'] = 'start_handler'
+
     text = 'Посещаете ли вы офис в Москве?'
     if query.data == NEW_EMPLOYEE:
         text = ('Добро пожаловать в ГК QTECH!! Этот чат-бот поможет '
@@ -39,7 +48,6 @@ def moscow_office_handler(update, context):
                 'предложения по улучшению. '
                 'Посещаете ли вы офис в Москве?')
 
-    context.user_data['previous_handler'] = moscow_office_handler.__name__
     keyboard = [
         [
             InlineKeyboardButton('Да', callback_data=MOSCOW_YES),
@@ -55,12 +63,9 @@ def info_buttons_handler(update, context):
     """Обработчик нажатия кнопок"""
     query = update.callback_query
     query.answer()
+    context.user_data['previous'] = 'moscow_office_handler'
 
-    if query.data == 'to_previous':
-        previous_handler = getattr(sys.modules[__name__], context.user_data.get("previous_handler"))
-        return previous_handler(update, context)
-
-    context.user_data["previous_handler2"] = info_buttons_handler.__name__
+    buttons = []
     if query.data == MOSCOW_YES:
         buttons = session.query(Button).filter_by(is_moscow=True,
                                                   is_department=False).all()
@@ -91,25 +96,32 @@ def button_text_handler(update, context):
     """Обработчик вывода текста кнопки"""
     query = update.callback_query
     query.answer()
+    context.user_data['previous'] = 'department_button_handler'
 
     button_id = int(query.data.split('_')[1])
     button = session.query(Button).filter_by(id=button_id).one_or_none()
-
+    if not button:
+        query.edit_message_text(text='Ошибка: кнопка не найдена.')
+        return
+    keyboard = [
+        [
+            InlineKeyboardButton('Назад', callback_data='to_previous3'),
+            InlineKeyboardButton('В начало', callback_data='to_start')
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     message = button.text
-    query.edit_message_text(text=message)
+    query.edit_message_text(text=message,
+                            reply_markup=reply_markup)
 
 
 def department_button_handler(update, context):
     """Обработчик кнопки 'К кому обращаться?'"""
     query = update.callback_query
     query.answer()
+    context.user_data['previous'] = 'info_buttons_handler'
 
     office_choice = query.data.split('_')[3]
-    
-    if query.data == 'to_previous2':
-        previous_handler2 = getattr(sys.modules[__name__], context.user_data.get("previous_handler2"))
-        return previous_handler2(update, context)
-
     if office_choice == 'yes':
         buttons = session.query(Button).filter_by(is_moscow=True,
                                                   is_department=True).all()
@@ -129,6 +141,22 @@ def department_button_handler(update, context):
     query.edit_message_text(
         text='Выберите отдел',
         reply_markup=reply_markup)
+
+
+def back_to_previous_handler(update, context):
+    """Обработчик кнопки 'Назад'"""
+    query = update.callback_query
+    query.answer()
+
+    previous_handler_name = context.user_data.get('previous')
+    if previous_handler_name:
+        previous_handler = globals().get(previous_handler_name)
+        if previous_handler:
+            previous_handler(update, context)
+        else:
+            start_handler(update, context)
+    else:
+        start_handler(update, context)
 
 
 def message_handler(update, context):

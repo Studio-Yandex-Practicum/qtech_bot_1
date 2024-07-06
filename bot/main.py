@@ -8,7 +8,8 @@ from telegram.ext import (
 from db import session
 from handlers import (
     start_handler, moscow_office_handler, info_buttons_handler,
-    button_text_handler, message_handler, department_button_handler)
+    back_to_previous_handler, button_text_handler,
+    message_handler, department_button_handler)
 
 load_dotenv()
 
@@ -32,10 +33,8 @@ def main():
         pattern='^department_button_(moscow_yes|moscow_no)$'))
     dispatcher.add_handler(CallbackQueryHandler(start_handler,
                                                 pattern='to_start'))
-    dispatcher.add_handler(CallbackQueryHandler(moscow_office_handler,
-                                                pattern='to_previous'))
-    dispatcher.add_handler(CallbackQueryHandler(info_buttons_handler,
-                                                pattern='to_previous2'))
+    dispatcher.add_handler(CallbackQueryHandler(back_to_previous_handler,
+                                                pattern='^to_previous$'))
 
     updater.start_polling()
     updater.idle()
