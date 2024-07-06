@@ -65,7 +65,6 @@ def info_buttons_handler(update, context):
     query.answer()
     context.user_data['previous'] = 'moscow_office_handler'
 
-    buttons = []
     if query.data == MOSCOW_YES:
         buttons = session.query(Button).filter_by(is_moscow=True,
                                                   is_department=False).all()
@@ -105,7 +104,7 @@ def button_text_handler(update, context):
         return
     keyboard = [
         [
-            InlineKeyboardButton('Назад', callback_data='to_previous3'),
+            InlineKeyboardButton('Назад', callback_data='to_previous'),
             InlineKeyboardButton('В начало', callback_data='to_start')
         ]
     ]
@@ -134,7 +133,7 @@ def department_button_handler(update, context):
         for button in buttons
     ]
     keyboard.append([
-        InlineKeyboardButton('Назад', callback_data='to_previous2'),
+        InlineKeyboardButton('Назад', callback_data='to_previous'),
         InlineKeyboardButton('В начало', callback_data='to_start')
         ])
     reply_markup = InlineKeyboardMarkup(keyboard)
