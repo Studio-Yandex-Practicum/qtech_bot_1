@@ -65,15 +65,15 @@ def info_buttons_handler(update, context):
     query.answer()
     context.user_data['previous'] = 'moscow_office_handler'
 
-    print(f'query.data = {query.data}')
-    print(context.user_data.get('office_choice'))  # 'yes' or 'no'
-
-    context_office_choice = context.user_data.get('office_choice')
-
     if query.data == MOSCOW_YES:
         context.user_data['office_choice'] = 'yes'
     elif query.data == MOSCOW_NO:
         context.user_data['office_choice'] = 'no'
+
+    context_office_choice = context.user_data.get('office_choice')
+
+    print(f'query.data = {query.data}')
+    print(f'context.user_data.get("office_choice") = {context.user_data.get("office_choice")}')  # 'yes' or 'no'
 
     if query.data == MOSCOW_YES or context_office_choice == 'yes':
         buttons = session.query(Button).filter_by(is_moscow=True,
