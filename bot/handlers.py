@@ -65,23 +65,33 @@ def info_buttons_handler(update, context):
     query.answer()
     context.user_data['previous'] = 'moscow_office_handler'
 
+    print(f'query.data = {query.data}')
+    print(context.user_data.get('office_choice'))  # 'yes' or 'no'
+
+    context_office_choice = context.user_data.get('office_choice')
+
     if query.data == MOSCOW_YES:
+        context.user_data['office_choice'] = 'yes'
+    elif query.data == MOSCOW_NO:
+        context.user_data['office_choice'] = 'no'
+
+    if query.data == MOSCOW_YES or context_office_choice == 'yes':
         buttons = session.query(Button).filter_by(is_moscow=True,
                                                   is_department=False).all()
-    elif query.data == MOSCOW_NO:
+    elif query.data == MOSCOW_NO or context_office_choice == 'no':
         buttons = session.query(Button).filter_by(is_moscow=False,
                                                   is_department=False).all()
 
     keyboard = [
         [InlineKeyboardButton(button.name, callback_data=f'button_{button.id}')]
         for button in buttons
-        ]
+    ]
     keyboard.append([InlineKeyboardButton('К кому обращаться?',
-                                          callback_data=f'department_button_{query.data}')])
+                                          callback_data=f'department_button_moscow_{context.user_data["office_choice"]}')])
     keyboard.append([
         InlineKeyboardButton('Назад', callback_data='to_previous'),
         InlineKeyboardButton('В начало', callback_data='to_start')
-        ])
+    ])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
@@ -91,17 +101,60 @@ def info_buttons_handler(update, context):
         reply_markup=reply_markup)
 
 
+def department_button_handler(update, context):
+    """Обработчик кнопки 'К кому обращаться?'"""
+    query = update.callback_query
+    query.answer()
+    context.user_data['previous'] = 'info_buttons_handler'
+
+    print(query.data)
+    if context.user_data.get('office_choice') == None:
+        office_choice = query.data.split('_')[3]
+    else:
+        office_choice = None
+
+    if office_choice and office_choice == 'yes' or context.user_data.get('office_choice') == 'yes':
+        context.user_data['office_choice'] = 'yes'
+        buttons = session.query(Button).filter_by(is_moscow=True,
+                                                  is_department=True).all()
+    elif office_choice == 'no' or context.user_data.get('office_choice') == 'no':
+        context.user_data['office_choice'] = 'no'
+        buttons = session.query(Button).filter_by(is_moscow=False,
+                                                  is_department=True).all()
+
+    keyboard = [
+        [InlineKeyboardButton(button.name, callback_data=f'button_{button.id}')]
+        for button in buttons
+    ]
+    keyboard.append([
+        InlineKeyboardButton('Назад', callback_data='to_previous'),
+        InlineKeyboardButton('В начало', callback_data='to_start')
+    ])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(
+        text='Выберите отдел',
+        reply_markup=reply_markup)
+
+
 def button_text_handler(update, context):
     """Обработчик вывода текста кнопки"""
     query = update.callback_query
     query.answer()
-    context.user_data['previous'] = 'department_button_handler'
+    context_previous = context.user_data.get('previous')
+    context_ofice_choise = context.user_data.get('office_choice')
+    print(f'context_ofice_choise == {context_ofice_choise}')
 
     button_id = int(query.data.split('_')[1])
     button = session.query(Button).filter_by(id=button_id).one_or_none()
     if not button:
         query.edit_message_text(text='Ошибка: кнопка не найдена.')
         return
+
+    if context.user_data.get('previous') == 'moscow_office_handler':
+        context.user_data['previous'] = 'info_buttons_handler'
+    elif context.user_data.get('previous') == 'info_buttons_handler':
+        context.user_data['previous'] = 'department_button_handler'
+
     keyboard = [
         [
             InlineKeyboardButton('Назад', callback_data='to_previous'),
@@ -112,34 +165,6 @@ def button_text_handler(update, context):
     message = button.text
     query.edit_message_text(text=message,
                             reply_markup=reply_markup)
-
-
-def department_button_handler(update, context):
-    """Обработчик кнопки 'К кому обращаться?'"""
-    query = update.callback_query
-    query.answer()
-    context.user_data['previous'] = 'info_buttons_handler'
-
-    office_choice = query.data.split('_')[3]
-    if office_choice == 'yes':
-        buttons = session.query(Button).filter_by(is_moscow=True,
-                                                  is_department=True).all()
-    elif office_choice == 'no':
-        buttons = session.query(Button).filter_by(is_moscow=False,
-                                                  is_department=True).all()
-
-    keyboard = [
-        [InlineKeyboardButton(button.name, callback_data=f'button_{button.id}')]
-        for button in buttons
-    ]
-    keyboard.append([
-        InlineKeyboardButton('Назад', callback_data='to_previous'),
-        InlineKeyboardButton('В начало', callback_data='to_start')
-        ])
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text='Выберите отдел',
-        reply_markup=reply_markup)
 
 
 def back_to_previous_handler(update, context):
