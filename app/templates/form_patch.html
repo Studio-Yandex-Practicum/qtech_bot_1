@@ -7,10 +7,25 @@
       <h3>Редактирование кнопки - {{ context.name }}</h3>
     </div>
 
+    <br>
+		<div class="container">
+			<div class="row">
+				<div class="text-danger font-weight-bold">
+					<ul>
+						{% for error in errors %}
+							<li class="alert alert-danger">
+								{{error}}
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+
     <div class="form-group ">
-      <label for="name">Название кнопки:</label>
-      <input type = "text" name = "name" id='name' placeholder = "Name" class="form-control" value="{{context.name}}"/>
-    </div>
+			<label for="name">Название кнопки:</label>
+			<input type="text" class="form-control col-sm-12 invalidInput" name="name" id="name" placeholder= "Название кнопки" value="{{context.name}}" required/>
+		</div>
 
     <div class="form-group">
       <label for="is_moscow">Локация (москва/немосква)</label>
@@ -30,7 +45,7 @@
 
     <div class="form-group">
       <label for="text">Информационное сообщение:</label>
-      <textarea class="form-control" name="text" id="text" rows="10" required> {{ context.text }}</textarea>
+      <textarea class="form-control" name="text" id="text" rows="10">{{ context.text }}</textarea>
     </div>
 
     <div class="form-group">
