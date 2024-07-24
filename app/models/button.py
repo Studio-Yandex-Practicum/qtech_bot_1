@@ -5,7 +5,7 @@ import datetime
 
 
 class Button(Base):
-    name = Column(String(100), nullable=False, unique=True)
+    name = Column(String(100), nullable=False)
     is_moscow = Column(Boolean,  default=True)
     text = Column(Text())
     picture = Column(URLType, nullable=True)
