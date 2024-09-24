@@ -7,10 +7,10 @@ from const import APP_PATH
 
 
 def form_path(path):
-    return os.getcwd() + APP_PATH + path
+    #return os.getcwd() + APP_PATH + path
     # если у вас ошибка FileNotFoundError: [Errno 2] No such file or directory...
     # используйте такую запись:
-    # return os.getcwd().replace('/bot', '') + APP_PATH + path
+    return os.getcwd().replace('/bot', '') + APP_PATH + path
 
 
 def form_media_group(doc_paths, media_type):

@@ -8,7 +8,9 @@ from db import session
 from handlers import (
     start_handler, moscow_office_handler, info_buttons_handler,
     back_to_previous_handler, button_text_picture_doc_handler,
-    message_handler, department_button_handler)
+    message_handler, department_button_handler, analytics,
+    analytics_date,
+)
 
 load_dotenv()
 
@@ -22,6 +24,13 @@ def setup_handlers(dispatcher):
     dispatcher.add_handler(CallbackQueryHandler(department_button_handler, pattern='^department_button[a-z_]+$'))
     dispatcher.add_handler(CallbackQueryHandler(start_handler, pattern='to_start'))
     dispatcher.add_handler(CallbackQueryHandler(back_to_previous_handler, pattern='^to_previous$'))
+    dispatcher.add_handler(
+        CallbackQueryHandler(
+            analytics,
+            pattern='^(Total|Users|Messages|Events)$'
+        )
+    )
+    dispatcher.add_handler(CallbackQueryHandler(analytics_date, pattern='^No_Date$'))
     dispatcher.add_handler(MessageHandler(Filters.all, message_handler))
 
 
