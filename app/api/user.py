@@ -1,14 +1,14 @@
 import datetime as dt
-from typing import Dict, List, Optional
 import re
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.exceptions import HTTPException
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2, OAuth2PasswordRequestForm
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.templating import Jinja2Templates
-from fastapi.exceptions import HTTPException
 from jose import JWTError, jwt
 from jwt import ExpiredSignatureError
 from passlib.context import CryptContext
@@ -17,8 +17,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.db import get_async_session
-from app.core.user import fastapi_users, get_user_manager, UserManager
-from app.crud.user import get_user, get_all_users, user_crud
+from app.core.user import UserManager, fastapi_users, get_user_manager
+from app.crud.user import get_all_users, get_user, user_crud
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 

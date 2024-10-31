@@ -1,9 +1,8 @@
 import os
 
+from const import APP_PATH
 from telegram import InputMediaDocument, InputMediaPhoto, ParseMode
 from telegram.error import TelegramError
-
-from const import APP_PATH
 
 
 def form_path(path):

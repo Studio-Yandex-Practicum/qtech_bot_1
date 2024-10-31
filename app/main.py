@@ -1,5 +1,4 @@
-from fastapi import FastAPI
-from fastapi import HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 

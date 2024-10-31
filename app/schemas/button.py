@@ -1,10 +1,11 @@
+"""Модуль с классами схем."""
 from datetime import datetime
 
-from fastapi import Form
 from pydantic import BaseModel
 
 
 class ButtonBase(BaseModel):
+    """Базовая класс схемы кнопки бота"""
     name: str
     location: bool
     message: str
@@ -13,22 +14,21 @@ class ButtonBase(BaseModel):
     created_date: datetime
 
     class Config:
-        orm_mode = True
+        """Класс конфигурации класса схемы"""
+        from_attributes = True
 
 
 class ButtonCreation(BaseModel):
+    """Класс схемы создания кнопки бота"""
     name: str
     location: bool
     message: str
 
+
 class ButtonUpdate(BaseModel):
+    """Класс схемы создания кнопки бота"""    
     name: str
     is_moscow: bool
     text: str
     is_department: bool
     is_active: bool
-
-
-
-
-

@@ -1,12 +1,14 @@
+"""Модуль с хендлерами."""
 import re
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, TelegramError
+from db import Button, session
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,
+                      TelegramError)
+from utils import delete_messages_from_chat, form_media_group
 
-from lorabot import LoraBot
-from utils import form_media_group, delete_messages_from_chat
-from const import NEW_EMPLOYEE, OLD_EMPLOYEE, MOSCOW_NO, MOSCOW_YES, ANALYTICS_CALL
-from db import session, Button
-
+from .const import (ANALYTICS_CALL, MOSCOW_NO, MOSCOW_YES, NEW_EMPLOYEE,
+                    OLD_EMPLOYEE)
+from .lorabot import LoraBot
 
 lora_bot = LoraBot('TG_BOT_NAME')
 type_of_message = ['command','text+file+back_menu','text+menu','warning+back_menu','кнопка назад']
@@ -99,8 +101,6 @@ def info_buttons_handler(update, context):
         context.user_data['office_choice'] = 'no'
     context_office_choice = context.user_data.get('office_choice')
 
-#    print(f'query.data = {query.data}')
-#    print(f'context.user_data.get("office_choice") = {context.user_data.get("office_choice")}')
     if query.data == MOSCOW_YES or context_office_choice == 'yes':
         buttons = session.query(Button).filter_by(is_moscow=True,
                                                   is_department=False,
@@ -117,8 +117,7 @@ def info_buttons_handler(update, context):
     ]
     keyboard.append([InlineKeyboardButton('К кому обращаться?',
                                           callback_data=f'department_button_moscow_{context.user_data["office_choice"]}')])
-    # print('callback to department: ')                     
-    # print(f'department_button_moscow_{context.user_data["office_choice"]}')
+
     keyboard.append([
         InlineKeyboardButton('Назад', callback_data='to_previous'),
         InlineKeyboardButton('В начало', callback_data='to_start')
@@ -142,7 +141,6 @@ def department_button_handler(update, context):
     query.answer()
     context.user_data['previous'] = 'info_buttons_handler'
 
-#    print(query.data)
     if context.user_data.get('office_choice') == None:
         office_choice = query.data.split('_')[3]
     else:
@@ -279,11 +277,10 @@ def message_handler(update, context):
 
 
 def analytics(update, context):
+    """Пока stub для выбора даты (первая кнопка ОК)."""
     query = update.callback_query
     menu_analytics = ['Total', 'Users', 'Messages', 'Events']
     if query.data in menu_analytics:
-        # text = ("Set date if you need(start and end date splitting by space in "
-        #     "format 'YYYY-MM-DD') or select no on menu")
         text = ('Здесь можно расположить выбор start end даты периода аналитики. '
                 'Пока по всем.')
         keyboard = [[InlineKeyboardButton('ОК',callback_data='No_Date')],]
@@ -297,10 +294,9 @@ def analytics(update, context):
         query.edit_message_text(text='Error', reply_markup=reply_markup)
 
 def analytics_date(update, context):
+    """Пока stub для выбора типа event или message (вторая кнопка ОК)."""
     query = update.callback_query
     query.answer() 
-#    text = ("Set message or event type (only this one has types) or "
-#            "select no on menu")
     text = ('Здесь можно расположить меню выбора типа message или event. '
             'Пока по всем.')
     keyboard = [[InlineKeyboardButton('OK',callback_data='No_Type')],]
@@ -323,9 +319,6 @@ def analytics_date(update, context):
 
 def analytics_type(update, context):
     """Колбэк для выбора типа аналитики."""
-
-    print('---Колбэк для выбора типа аналитики.--') 
-
     query = update.callback_query
     query.answer() 
     keyboard = [[InlineKeyboardButton('В начало', callback_data='to_start'),],]
@@ -336,7 +329,6 @@ def analytics_type(update, context):
     else:
         # TO DO
         user_analytics[update.effective_chat.id]['type'] = query.message.text
-
     if user_analytics[update.effective_chat.id]['analytics_type'] == 'Total':
         info = lora_bot.analyze_total(user_analytics[update.effective_chat.id]['start_date'],
                                                 user_analytics[update.effective_chat.id]['end_date'])
@@ -391,6 +383,7 @@ def analytics_type(update, context):
                                                      user_analytics[update.effective_chat.id]['end_date'])
         context.bot.sendPhoto(
             chat_id=update.effective_chat.id, photo=photo,)
+        # message_funnel = [] спискок брать из env или из того что уже есть в БД 
         photo, info = lora_bot.analyze_messages_funnel(
             ['/start',
              'Здорово, что вы присоединились к чат-боту! Он...',

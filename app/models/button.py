@@ -1,7 +1,9 @@
-from sqlalchemy import Column, String, Text, Boolean, DateTime
-from sqlalchemy_utils import URLType
-from app.core.db import Base
 import datetime
+
+from sqlalchemy import Boolean, Column, DateTime, String, Text
+from sqlalchemy_utils import URLType
+
+from app.core.db import Base
 
 
 class Button(Base):

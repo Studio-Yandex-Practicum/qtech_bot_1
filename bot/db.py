@@ -1,10 +1,12 @@
+"""Модуль движка, модели и соединения с БД."""
 import datetime
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import Column, String, Text, Boolean, DateTime, create_engine, Integer
+from sqlalchemy import (Boolean, Column, DateTime, Integer, String, Text,
+                        create_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from sqlalchemy_utils import URLType
 
@@ -21,6 +23,7 @@ Base = declarative_base()
 
 
 class Button(Base):
+    """Класс модели кнопки в БД."""
     __tablename__ = 'button'
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False, unique=True)
@@ -30,7 +33,7 @@ class Button(Base):
     file = Column(URLType, nullable=True)
     is_department = Column(Boolean, default=True)
     is_active = Column(Boolean, default=True)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    created_date = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
 
 
 Session = scoped_session(sessionmaker(bind=engine))

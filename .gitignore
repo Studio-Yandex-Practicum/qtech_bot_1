@@ -56,8 +56,8 @@ media/
 .media/
 **/**/__pycache__/
 
-#data
+# data
 database/
-#app/static/media/
-#*.db
+app/static/media/
+*.db
 .DS_Store

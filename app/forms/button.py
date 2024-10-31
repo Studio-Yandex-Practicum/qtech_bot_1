@@ -1,6 +1,6 @@
-from typing import Optional, List
+from typing import List, Optional
 
-from fastapi import Request, UploadFile, File
+from fastapi import File, Request, UploadFile
 
 
 class ButtonForm:

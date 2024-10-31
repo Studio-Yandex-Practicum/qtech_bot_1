@@ -1,10 +1,12 @@
-import pandas as pd
-import psycopg2
 import os
-from dotenv import load_dotenv
+
+import pandas as pd
 import plotly.express as px
-from .lorabot_sql import *
+import psycopg2
+from dotenv import load_dotenv
 from PIL import Image, ImageDraw
+
+from .lorabot_sql import *
 
 
 class LoraBot:
